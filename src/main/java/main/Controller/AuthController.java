@@ -3,7 +3,7 @@ package main.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class ApiAuthController {
+public class AuthController {
 
     // POST /api/auth/login
 

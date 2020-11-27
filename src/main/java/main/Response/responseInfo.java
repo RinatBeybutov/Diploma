@@ -1,4 +1,4 @@
-package main.response;
+package main.Response;
 
 public class responseInfo {
 
