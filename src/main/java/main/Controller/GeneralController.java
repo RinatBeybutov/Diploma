@@ -1,11 +1,14 @@
 package main.Controller;
 
-import main.Response.InitResponse;
-import main.Response.NotAuthorizationResponse;
-import main.Response.SettingsReponse;
+import main.Model.Post;
+import main.Response.*;
 import main.Service.SettingsService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class GeneralController {
@@ -44,7 +47,21 @@ public class GeneralController {
         return notAuthorizationResponse;
     }
 
-    // GET /api/settings/
+    @GetMapping("/api/tag")
+    public List<TagsResponse> getTags()
+    {
+        return new ArrayList<TagsResponse>();
+    }
+
+    @GetMapping("api/post")
+    public ListPostsResponse getPosts()
+    {
+        ListPostsResponse listPostsResponse = new ListPostsResponse();
+        listPostsResponse.setCount(0);
+        listPostsResponse.setPosts(new ArrayList<Post>());
+        return listPostsResponse;
+    }
+
 
     // PUT /api/settings/
 
