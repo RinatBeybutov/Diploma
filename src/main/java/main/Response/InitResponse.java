@@ -1,22 +1,24 @@
 package main.Response;
 
-public class responseInfo {
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
+public class InitResponse {
+
+    @Value("${blog.title}")
     private String title;
+    @Value("${blog.subtitle}")
     private String subtitle;
+    @Value("${blog.phone}")
     private String phone;
+    @Value("${blog.email}")
     private String email;
+    @Value("${blog.copyright}")
     private String copyright;
+    @Value("${blog.copyrightFrom}")
     private String copyrightFrom;
 
-    public responseInfo(String title, String subtitle, String phone, String email, String copyright, String copyrightFrom) {
-        this.title = title;
-        this.subtitle = subtitle;
-        this.phone = phone;
-        this.email = email;
-        this.copyright = copyright;
-        this.copyrightFrom = copyrightFrom;
-    }
 
     public String getTitle() {
         return title;
