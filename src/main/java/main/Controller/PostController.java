@@ -1,13 +1,36 @@
 package main.Controller;
 
+import main.Model.Post;
+import main.Response.ListPostsResponse;
+import main.Response.dto.PostResponse;
+import main.Service.PostService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+
 @RestController
+@RequestMapping("/api/post")
 public class PostController {
 
+    private PostService postService;
 
+    public PostController(PostService postService) {
+        this.postService = postService;
+    }
 
-    // GET /api/post/
+    @GetMapping("")
+    public ListPostsResponse getPosts(@RequestParam int offset, @RequestParam int limit, @RequestParam String mode)
+    {
+        return postService.getPostsByTime();
+
+        /*ListPostsResponse listPostsResponse = new ListPostsResponse();
+        listPostsResponse.setCount(0);
+        listPostsResponse.setPosts(new ArrayList<PostResponse>());
+        return listPostsResponse;*/
+    }
 
     // GET /api/post/search/
 

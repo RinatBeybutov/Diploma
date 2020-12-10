@@ -1,14 +1,13 @@
 package main.Response;
 
 import main.Model.Post;
-import org.springframework.stereotype.Component;
+import main.Response.dto.PostResponse;
 
 import java.util.List;
 
-@Component
 public class ListPostsResponse {
     private int count;
-    private List<Post> posts;
+    private List<PostResponse> posts;
 
     public int getCount() {
         return count;
@@ -18,11 +17,11 @@ public class ListPostsResponse {
         this.count = count;
     }
 
-    public List<Post> getPosts() {
+    public List<PostResponse> getPosts() {
         return posts;
     }
 
-    public void setPosts(List<Post> posts) {
+    public void setPosts(List<PostResponse> posts) {
         this.posts = posts;
     }
 }

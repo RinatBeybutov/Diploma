@@ -27,12 +27,6 @@ public class GeneralController {
     public InitResponse getInfo()
     {
         return initResponse;
-      /*  return new InitResponse("DevPub",
-                "Рассказы разработчиков",
-                "+7 903 666-44-55",
-                "mail@mail.ru",
-                "Дмитрий Сергеев",
-                "2005"); */
     }
 
     @GetMapping("/api/settings")
@@ -53,18 +47,11 @@ public class GeneralController {
         return new ArrayList<TagsResponse>();
     }
 
-    @GetMapping("api/post")
-    public ListPostsResponse getPosts()
-    {
-        ListPostsResponse listPostsResponse = new ListPostsResponse();
-        listPostsResponse.setCount(0);
-        listPostsResponse.setPosts(new ArrayList<Post>());
-        return listPostsResponse;
-    }
-
+    // POST /api/profile/my
 
     // PUT /api/settings/
 
+    // POST /api/profile/my
 
 
 }
