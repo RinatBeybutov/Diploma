@@ -1,8 +1,14 @@
 package main.Response.dto;
 
-public class UserResponse {
+
+public class UserDtoTwoFields {
     private int id;
     private String name;
+
+    public UserDtoTwoFields(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     public int getId() {
         return id;

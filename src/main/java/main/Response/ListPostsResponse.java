@@ -9,6 +9,11 @@ public class ListPostsResponse {
     private int count;
     private List<PostResponse> posts;
 
+    public ListPostsResponse(int count, List<PostResponse> posts) {
+        this.count = count;
+        this.posts = posts;
+    }
+
     public int getCount() {
         return count;
     }

@@ -1,15 +1,11 @@
 package main.Controller;
 
-import main.Model.Post;
 import main.Response.ListPostsResponse;
-import main.Response.dto.PostResponse;
+import main.Response.dto.CurrentPostResponse;
 import main.Service.PostService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/post")
@@ -22,14 +18,24 @@ public class PostController {
     }
 
     @GetMapping("")
-    public ListPostsResponse getPosts(@RequestParam int offset, @RequestParam int limit, @RequestParam String mode)
+    public ResponseEntity<ListPostsResponse> getPosts(@RequestParam int offset,
+                                                     @RequestParam int limit,
+                                                     @RequestParam String mode)
     {
-        return postService.getPostsByTime();
+        switch (mode){
+        case "recent": return new ResponseEntity<>(postService.getPageablePostsByTimeDesc(offset, limit), HttpStatus.OK);
+        case "early": return new ResponseEntity<>(postService.getPageablePostsByTimeAsc(offset, limit), HttpStatus.OK);
+        case "popular": return new ResponseEntity<>(postService.getPageablePostsByComments(offset, limit), HttpStatus.OK);
+        case "best": return new ResponseEntity<>(postService.getPageablePostsByLikes(offset, limit), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
-        /*ListPostsResponse listPostsResponse = new ListPostsResponse();
-        listPostsResponse.setCount(0);
-        listPostsResponse.setPosts(new ArrayList<PostResponse>());
-        return listPostsResponse;*/
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CurrentPostResponse> getOpenPost(@PathVariable int id)
+    {
+        return postService.getCurrentPost(id);
     }
 
     // GET /api/post/search/
