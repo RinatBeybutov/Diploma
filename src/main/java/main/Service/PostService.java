@@ -4,6 +4,7 @@ import main.Model.Comment;
 import main.Model.Post;
 import main.Repository.CommentRepository;
 import main.Repository.PostRepository;
+import main.Response.CalendarResponse;
 import main.Response.ListPostsResponse;
 import main.Response.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -215,4 +219,28 @@ public class PostService {
     }
 
 
+    public CalendarResponse getCalendarResponse(int yearId) {
+
+        CalendarResponse calendarResponse = new CalendarResponse();
+        ArrayList<Post> listPosts = (ArrayList<Post>)postRepository.findAllByTimeAsc();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        listPosts.forEach(e->
+        {
+            String currentDate = dateFormat.format(e.getTime());
+            if(!calendarResponse.getPosts().containsKey(currentDate))
+            {
+                calendarResponse.getPosts().put(currentDate, 1);
+            }
+            else
+            {
+               calendarResponse.getPosts().put(currentDate,
+                       calendarResponse.getPosts().get(currentDate)+1);
+            }
+            calendarResponse.getYears().add(e.getTime().getYear()+1900);
+            //System.out.println(e.getId() + "  " + dateFormat.format(e.getTime()) + "  " + (e.getTime().getYear()+1900));
+        }
+        );
+
+        return calendarResponse;
+    }
 }

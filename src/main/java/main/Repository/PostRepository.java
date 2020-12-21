@@ -70,7 +70,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     // список постов по времени старые
 
-    @Query(value = "select * FROM posts order by time limit 10 offset 0", nativeQuery = true)
+    @Query(value = "select * FROM posts order by time", nativeQuery = true)
     List<Post> findAllByTimeAsc();
 
     // список постов по количеству комментов

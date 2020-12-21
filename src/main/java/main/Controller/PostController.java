@@ -60,8 +60,6 @@ public class PostController {
 
     // POST /api/moderation
 
-    // GET /api/calendar/
-
     // GET /api/statistics/my
 
     // GET /api/statistics/all
