@@ -1,9 +1,14 @@
 package main.Repository;
 
 import main.Model.GlobalSettings;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GlobalSettingsRepository extends CrudRepository<GlobalSettings, Integer> {
+public interface GlobalSettingsRepository extends JpaRepository<GlobalSettings, Integer> {
+
+
+    @Query(nativeQuery = true, value = "SELECT value from global_settings where code = :name")
+    boolean getValueByCode(String name);
 }

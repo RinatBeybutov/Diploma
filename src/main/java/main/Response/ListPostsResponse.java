@@ -1,15 +1,14 @@
 package main.Response;
 
-import main.Model.Post;
-import main.Response.dto.PostResponse;
+import main.Response.dto.PostDto;
 
 import java.util.List;
 
 public class ListPostsResponse {
     private int count;
-    private List<PostResponse> posts;
+    private List<PostDto> posts;
 
-    public ListPostsResponse(int count, List<PostResponse> posts) {
+    public ListPostsResponse(int count, List<PostDto> posts) {
         this.count = count;
         this.posts = posts;
     }
@@ -22,11 +21,11 @@ public class ListPostsResponse {
         this.count = count;
     }
 
-    public List<PostResponse> getPosts() {
+    public List<PostDto> getPosts() {
         return posts;
     }
 
-    public void setPosts(List<PostResponse> posts) {
+    public void setPosts(List<PostDto> posts) {
         this.posts = posts;
     }
 }

@@ -4,10 +4,14 @@ import main.Model.Comment;
 import main.Model.Post;
 import main.Repository.CommentRepository;
 import main.Repository.PostRepository;
+import main.Repository.VoteRepository;
 import main.Response.CalendarResponse;
+import main.Response.CurrentPostResponse;
 import main.Response.ListPostsResponse;
+import main.Response.StatisticsResponse;
 import main.Response.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,13 +33,16 @@ public class PostService {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private VoteRepository voteRepository;
+
     public ListPostsResponse getPageablePostsByTimeDesc(int offset, int itemPerPage)
     {
 
         Pageable pageable = PageRequest.of(offset / itemPerPage, itemPerPage);
-        ArrayList<PostResponse> responseList = new ArrayList<PostResponse>();
+        ArrayList<PostDto> responseList = new ArrayList<PostDto>();
         postRepository.findAllByTimeOnPageDesc(pageable).forEach(e ->
-                responseList.add(this.convertFromPostToPostResponse(e,
+                responseList.add(this.convertFromPostToPostDto(e,
                         postRepository.countLikesOnPost(e.getId()),
                         postRepository.countDislikesOnPost(e.getId()),
                         postRepository.countCommentsOnPost(e.getId()))));
@@ -47,9 +53,9 @@ public class PostService {
     {
 
         Pageable pageable = PageRequest.of(offset / itemPerPage, itemPerPage);
-        ArrayList<PostResponse> responseList = new ArrayList<PostResponse>();
+        ArrayList<PostDto> responseList = new ArrayList<PostDto>();
         postRepository.findAllByTimeOnPageAsc(pageable).forEach(e ->
-                responseList.add(this.convertFromPostToPostResponse(e,
+                responseList.add(this.convertFromPostToPostDto(e,
                         postRepository.countLikesOnPost(e.getId()),
                         postRepository.countDislikesOnPost(e.getId()),
                         postRepository.countCommentsOnPost(e.getId()))));
@@ -60,9 +66,9 @@ public class PostService {
     {
 
         Pageable pageable = PageRequest.of(offset / itemPerPage, itemPerPage);
-        ArrayList<PostResponse> responseList = new ArrayList<PostResponse>();
+        ArrayList<PostDto> responseList = new ArrayList<PostDto>();
         postRepository.findAllByCommentOnPage(pageable).forEach(e ->
-                responseList.add(this.convertFromPostToPostResponse(e,
+                responseList.add(this.convertFromPostToPostDto(e,
                         postRepository.countLikesOnPost(e.getId()),
                         postRepository.countDislikesOnPost(e.getId()),
                         postRepository.countCommentsOnPost(e.getId()))));
@@ -73,9 +79,9 @@ public class PostService {
     {
 
         Pageable pageable = PageRequest.of(offset / itemPerPage, itemPerPage);
-        ArrayList<PostResponse> responseList = new ArrayList<PostResponse>();
+        ArrayList<PostDto> responseList = new ArrayList<PostDto>();
         postRepository.findAllByLikesOnPage(pageable).forEach(e ->
-                responseList.add(this.convertFromPostToPostResponse(e,
+                responseList.add(this.convertFromPostToPostDto(e,
                         postRepository.countLikesOnPost(e.getId()),
                         postRepository.countDislikesOnPost(e.getId()),
                         postRepository.countCommentsOnPost(e.getId()))));
@@ -86,9 +92,9 @@ public class PostService {
     {
 
      ArrayList<Post> list = (ArrayList<Post>) postRepository.findAllByTimeDesc(10);
-     ArrayList<PostResponse> responseList = new ArrayList<PostResponse>();
+     ArrayList<PostDto> responseList = new ArrayList<PostDto>();
      list.stream().forEach(e ->
-         responseList.add(this.convertFromPostToPostResponse(e,
+         responseList.add(this.convertFromPostToPostDto(e,
                  postRepository.countLikesOnPost(e.getId()),
                  postRepository.countDislikesOnPost(e.getId()),
                  postRepository.countCommentsOnPost(e.getId()))
@@ -100,9 +106,9 @@ public class PostService {
     public ListPostsResponse getPostsByTimeAsc()
     {
         ArrayList<Post> list = (ArrayList<Post>) postRepository.findAllByTimeAsc();
-        ArrayList<PostResponse> responseList = new ArrayList<PostResponse>();
+        ArrayList<PostDto> responseList = new ArrayList<PostDto>();
         list.stream().forEach(e ->
-                responseList.add(this.convertFromPostToPostResponse(e,
+                responseList.add(this.convertFromPostToPostDto(e,
                         postRepository.countLikesOnPost(e.getId()),
                         postRepository.countDislikesOnPost(e.getId()),
                         postRepository.countCommentsOnPost(e.getId()))
@@ -114,9 +120,9 @@ public class PostService {
     public ListPostsResponse getPostsByComments()
     {
         ArrayList<Post> list = (ArrayList<Post>) postRepository.findAllByComments();
-        ArrayList<PostResponse> responseList = new ArrayList<PostResponse>();
+        ArrayList<PostDto> responseList = new ArrayList<PostDto>();
         list.stream().forEach(e ->
-                responseList.add(this.convertFromPostToPostResponse(e,
+                responseList.add(this.convertFromPostToPostDto(e,
                         postRepository.countLikesOnPost(e.getId()),
                         postRepository.countDislikesOnPost(e.getId()),
                         postRepository.countCommentsOnPost(e.getId()))
@@ -128,9 +134,9 @@ public class PostService {
     public ListPostsResponse getPostsByLikes()
     {
         ArrayList<Post> list = (ArrayList<Post>) postRepository.findAllByLikes();
-        ArrayList<PostResponse> responseList = new ArrayList<PostResponse>();
+        ArrayList<PostDto> responseList = new ArrayList<PostDto>();
         list.stream().forEach(e ->
-                responseList.add(this.convertFromPostToPostResponse(e,
+                responseList.add(this.convertFromPostToPostDto(e,
                         postRepository.countLikesOnPost(e.getId()),
                         postRepository.countDislikesOnPost(e.getId()),
                         postRepository.countCommentsOnPost(e.getId()))
@@ -158,6 +164,82 @@ public class PostService {
         postRepository.save(optionalPost.get());
 
         return new ResponseEntity(currentPostResponse, HttpStatus.OK);
+    }
+
+    public CalendarResponse getCalendarResponse(int yearId) {
+
+        CalendarResponse calendarResponse = new CalendarResponse();
+        ArrayList<Post> listPosts = (ArrayList<Post>)postRepository.findAllByTimeAsc();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        listPosts.forEach(e->
+        {
+            String currentDate = dateFormat.format(e.getTime());
+            if(!calendarResponse.getPosts().containsKey(currentDate))
+            {
+                calendarResponse.getPosts().put(currentDate, 1);
+            }
+            else
+            {
+               calendarResponse.getPosts().put(currentDate,
+                       calendarResponse.getPosts().get(currentDate)+1);
+            }
+            calendarResponse.getYears().add(e.getTime().getYear()+1900);
+           }
+        );
+
+        return calendarResponse;
+    }
+
+    public ResponseEntity<ListPostsResponse> getPostsByTag(int offset, int limit, String tag) {
+
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        ArrayList<PostDto> responseList = new ArrayList<>();
+        postRepository.findAllByTagOnPage(tag, pageable).forEach(e ->
+                responseList.add(this.convertFromPostToPostDto(e,
+                        postRepository.countLikesOnPost(e.getId()),
+                        postRepository.countDislikesOnPost(e.getId()),
+                        postRepository.countCommentsOnPost(e.getId()))));
+
+        return new ResponseEntity<ListPostsResponse>(new ListPostsResponse(responseList.size(),
+                responseList),HttpStatus.OK);
+    }
+
+    public ResponseEntity<ListPostsResponse> getPostsByDate(int offset, int limit, String date) {
+
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        ArrayList<PostDto> responseList = new ArrayList<>();
+        postRepository.findAllByDateByPage(date, pageable).forEach(e ->
+                responseList.add(this.convertFromPostToPostDto(e,
+                        postRepository.countLikesOnPost(e.getId()),
+                        postRepository.countDislikesOnPost(e.getId()),
+                        postRepository.countCommentsOnPost(e.getId()))));
+
+        return new ResponseEntity<ListPostsResponse>(new ListPostsResponse(responseList.size(),
+                responseList),HttpStatus.OK);
+    }
+
+
+    public ResponseEntity<ListPostsResponse> getPostsByQuery(int offset, int limit, String query) {
+        Pageable pageable = PageRequest.of(offset/limit, limit);
+        Page<Post> list;
+        ArrayList<PostDto> responseList = new ArrayList<>();
+        if(query.equals(""))
+        {
+            list = postRepository.findAllActivePosts(pageable);
+        }
+        else
+        {
+            list = postRepository.findAllByQuery(pageable, query);
+        }
+
+        list.forEach(e ->
+                responseList.add(this.convertFromPostToPostDto(e,
+                        postRepository.countLikesOnPost(e.getId()),
+                        postRepository.countDislikesOnPost(e.getId()),
+                        postRepository.countCommentsOnPost(e.getId()))));
+
+        return new ResponseEntity<>(new ListPostsResponse(responseList.size(),
+                responseList), HttpStatus.OK);
     }
 
     private CurrentPostResponse convertFromPostToCurrentPostResponse(Post post,
@@ -198,49 +280,37 @@ public class PostService {
         return commentResponse;
     }
 
+    private PostDto convertFromPostToPostDto(Post e, int countLikes, int countDislike,
+                                             int countComments) {
 
-    private PostResponse convertFromPostToPostResponse(Post e, int countLikes, int countDislike,
-                                                       int countComments) {
+        PostDto postDto = new PostDto();
+        postDto.setId(e.getId());
+        postDto.setTitle(e.getTitle());
+        postDto.setTimestamp(e.getTime().getTime()/1000);
+        postDto.setAnnounce(e.getText().substring(0,Math.min(150, e.getText().length())));
+        postDto.setViewCount(e.getCountView());
 
-        PostResponse postResponse = new PostResponse();
-        postResponse.setId(e.getId());
-        postResponse.setTitle(e.getTitle());
-        postResponse.setTimestamp(e.getTime().getTime()/1000);
-        postResponse.setAnnounce(e.getText().substring(0,Math.min(150, e.getText().length())));
-        postResponse.setViewCount(e.getCountView());
+        postDto.setCommentCount(countComments);
+        postDto.setDislikeCount(countDislike);
+        postDto.setLikeCount(countLikes);
 
-        postResponse.setCommentCount(countComments);
-        postResponse.setDislikeCount(countDislike);
-        postResponse.setLikeCount(countLikes);
-
-        postResponse.setUser(new UserDtoTwoFields(e.getUser().getId(), e.getUser().getName()));
-        return postResponse;
+        postDto.setUser(new UserDtoTwoFields(e.getUser().getId(), e.getUser().getName()));
+        return postDto;
 
     }
 
+    public StatisticsResponse getGlobalStatistics() {
+        StatisticsResponse statisticsResponse = new StatisticsResponse();
 
-    public CalendarResponse getCalendarResponse(int yearId) {
 
-        CalendarResponse calendarResponse = new CalendarResponse();
-        ArrayList<Post> listPosts = (ArrayList<Post>)postRepository.findAllByTimeAsc();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        listPosts.forEach(e->
-        {
-            String currentDate = dateFormat.format(e.getTime());
-            if(!calendarResponse.getPosts().containsKey(currentDate))
-            {
-                calendarResponse.getPosts().put(currentDate, 1);
-            }
-            else
-            {
-               calendarResponse.getPosts().put(currentDate,
-                       calendarResponse.getPosts().get(currentDate)+1);
-            }
-            calendarResponse.getYears().add(e.getTime().getYear()+1900);
-            //System.out.println(e.getId() + "  " + dateFormat.format(e.getTime()) + "  " + (e.getTime().getYear()+1900));
-        }
-        );
+        List<Post> listPosts = postRepository.findAllByTimeAsc();
+        statisticsResponse.setPostsCount(listPosts.size());
 
-        return calendarResponse;
+        statisticsResponse.setViewsCount(postRepository.findAll().stream().mapToInt(e->e.getCountView()).sum());
+        statisticsResponse.setLikesCount(voteRepository.countLikes());
+        statisticsResponse.setDislikesCount(voteRepository.countDislikes());
+        statisticsResponse.setFirstPublication(listPosts.get(0).getTime().getTime()/1000);
+
+        return statisticsResponse;
     }
 }

@@ -1,3 +1,26 @@
+
+ALTER TABLE post_comments DROP FOREIGN KEY FK21q7y8a124im4g0l4aaxn4ol1;
+
+ALTER TABLE post_comments DROP FOREIGN KEY FKaawaqxjs3br8dw5v90w7uu514;
+
+ALTER TABLE post_comments DROP FOREIGN KEY FKsnxoecngu89u3fh4wdrgf0f2g;
+
+ALTER TABLE post_votes DROP FOREIGN KEY FK9jh5u17tmu1g7xnlxa77ilo3u;
+
+ALTER TABLE post_votes DROP FOREIGN KEY FK9q09ho9p8fmo6rcysnci8rocc;
+
+ALTER TABLE posts DROP FOREIGN KEY FK4vtl41umx1t47ap0aefdxhsvq;
+
+ALTER TABLE posts DROP FOREIGN KEY FK6m7nr3iwh1auer2hk7rd05riw;
+
+ALTER TABLE posts DROP FOREIGN KEY FK5lidm6cqbc7u4xhqpxm898qme;
+
+ALTER TABLE tag2post DROP FOREIGN KEY FKjou6suf2w810t2u3l96uasw3r;
+
+ALTER TABLE tag2post DROP FOREIGN KEY FKpjoedhh4h917xf25el3odq20i;
+
+delete FROM flyway_schema_history where installed_rank > 0;
+
 drop table if exists captcha_codes;
 drop table if exists global_settings;
 drop table if exists hibernate_sequence;

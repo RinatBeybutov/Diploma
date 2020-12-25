@@ -21,7 +21,7 @@ INSERT INTO users(id, email, is_moderator, reg_time, name, password) VALUES
 (5, 'HerschelKendall72@example.com', 0, '2015-01-10', 'Hulk', 'qwerty123');
 
 INSERT INTO global_settings(id, code, name, value) VALUES
-(1, 'MULTIUSER_MODE', 'Многопользовательский режим', 'NO'),
+(1, 'MULTIUSER_MODE', 'Многопользовательский режим', 'YES'),
 (2, 'POST_PREMODERATION', 'Премодерация постов', 'YES'),
 (3, 'STATISTICS_IS_PUBLIC', 'Показывать всем статистику блога', 'YES');
 

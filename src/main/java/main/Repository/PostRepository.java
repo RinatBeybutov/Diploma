@@ -1,12 +1,10 @@
 package main.Repository;
 
 import main.Model.Post;
-import main.Response.dto.PostResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -85,9 +83,32 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "(select count(*) from post_votes where post_id = posts.id and value = 1) desc", nativeQuery = true)
     List<Post> findAllByLikes();
 
+    @Query(value = "select posts.id, view_count, is_active, moderation_status, " +
+            "text, time, title, comment_id, moderator_id, user_id " +
+            "from posts join tag2post " +
+            "on id = post_id " +
+            "join tags on " +
+            "tag_id = tags.id " +
+            "where name = :tag and is_active = 1 and moderation_status = \"ACCEPTED\""
+            , nativeQuery = true)
+    List<Post> findAllByTag(String tag);
 
+    @Query(value = "select posts.id, view_count, is_active, moderation_status, " +
+            "text, time, title, comment_id, moderator_id, user_id " +
+            "from posts join tag2post " +
+            "on id = post_id " +
+            "join tags on " +
+            "tag_id = tags.id " +
+            "where name = :tag and is_active = 1 and moderation_status = \"ACCEPTED\""
+            , nativeQuery = true)
+    Page<Post> findAllByTagOnPage(String tag, Pageable pageable);
 
+    @Query(value = "select * from posts where date(time) = :date", nativeQuery = true )
+    Page<Post> findAllByDateByPage(String date, Pageable pageable);
 
+    @Query(value = "select * from posts where is_active = 1 and moderation_status = \"ACCEPTED\"", nativeQuery = true)
+    Page<Post> findAllActivePosts(Pageable pageable);
 
-
+    @Query(value = "select * from posts where title like %:query%", nativeQuery = true)
+    Page<Post> findAllByQuery(Pageable pageable, String query);
 }

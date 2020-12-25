@@ -1,7 +1,7 @@
 package main.Controller;
 
 import main.Response.ListPostsResponse;
-import main.Response.dto.CurrentPostResponse;
+import main.Response.CurrentPostResponse;
 import main.Service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,16 +31,35 @@ public class PostController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<CurrentPostResponse> getOpenPost(@PathVariable int id)
     {
         return postService.getCurrentPost(id);
     }
 
-    // GET /api/post/search/
+    @GetMapping("/byTag")
+    public ResponseEntity<ListPostsResponse> getPostsByTag(@RequestParam int offset,
+                                                           @RequestParam int limit,
+                                                           @RequestParam String tag)
+    {
+        return postService.getPostsByTag(offset, limit, tag);
+    }
 
-    // GET /api/post/byTag
+    @GetMapping("/byDate")
+    public ResponseEntity<ListPostsResponse> getPostsByDate(@RequestParam int offset,
+                                                            @RequestParam int limit,
+                                                            @RequestParam String date)
+    {
+        return postService.getPostsByDate(offset, limit, date);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ListPostsResponse> getPostsByQuery(@RequestParam int offset,
+                                                             @RequestParam int limit,
+                                                             @RequestParam String query)
+    {
+        return postService.getPostsByQuery(offset, limit, query);
+    }
 
     // GET /api/post/moderation
 
@@ -61,8 +80,6 @@ public class PostController {
     // POST /api/moderation
 
     // GET /api/statistics/my
-
-    // GET /api/statistics/all
 
     // POST /api/post/like
 

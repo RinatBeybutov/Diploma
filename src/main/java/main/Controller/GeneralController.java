@@ -1,12 +1,11 @@
 package main.Controller;
 
 import main.Response.*;
+import main.Response.dto.TagDto;
 import main.Service.PostService;
 import main.Service.SettingsService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import main.Service.TagService;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,15 +18,18 @@ public class GeneralController {
     private final SettingsService settingsService;
     private final NotAuthorizationResponse notAuthorizationResponse;
     private PostService postService;
+    private TagService tagService;
 
     public GeneralController(InitResponse initResponse,
                              SettingsService settingsService,
                              NotAuthorizationResponse notAuthorizationResponse,
-                             PostService postService) {
+                             PostService postService,
+                             TagService tagService) {
         this.initResponse = initResponse;
         this.settingsService = settingsService;
         this.notAuthorizationResponse = notAuthorizationResponse;
         this.postService = postService;
+        this.tagService = tagService;
     }
 
     @GetMapping("/api/init")
@@ -49,18 +51,23 @@ public class GeneralController {
     }
 
     @GetMapping("/api/tag")
-    public List<TagsResponse> getTags()
+    public TagsResponse getTags()
     {
-        return new ArrayList<TagsResponse>();
+        return tagService.getTags();
     }
 
-    // GET /api/calendar/
-
-    @GetMapping("/api/calendar/{id}")
-    public CalendarResponse getCalendar(@PathVariable int id)
+    @GetMapping("/api/calendar")
+    public CalendarResponse getCalendar(@RequestParam int year)
     {
-        System.out.println("id = " + id);
-       return postService.getCalendarResponse(id);
+       return postService.getCalendarResponse(year);
+    }
+
+    // GET /api/statistics/all
+
+    @GetMapping("api/statistics/all")
+    public StatisticsResponse getStatistics()
+    {
+        return postService.getGlobalStatistics();
     }
 
     // POST /api/profile/my

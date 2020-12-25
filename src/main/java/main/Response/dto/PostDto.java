@@ -1,6 +1,6 @@
 package main.Response.dto;
 
-public class PostResponse {
+public class PostDto {
     private int id;
     private long timestamp;
     private UserDtoTwoFields user;

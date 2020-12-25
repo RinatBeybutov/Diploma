@@ -1,23 +1,22 @@
 package main.Response;
 
+import main.Response.dto.TagDto;
+
+import java.util.ArrayList;
 
 public class TagsResponse {
-    private String name;
-    private int weight;
+    private ArrayList<TagDto> tags;
 
-    public String getName() {
-        return name;
+    public TagsResponse()
+    {
+        tags = new ArrayList<>();
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public ArrayList<TagDto> getTags() {
+        return tags;
     }
 
-    public int getWeight() {
-        return weight;
-    }
-
-    public void setWeight(int weight) {
-        this.weight = weight;
+    public void setTags(ArrayList<TagDto> tags) {
+        this.tags = tags;
     }
 }
