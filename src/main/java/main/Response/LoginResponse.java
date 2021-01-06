@@ -1,6 +1,6 @@
 package main.Response;
 
-import main.Response.dto.UserBigDto;
+import main.dto.UserBigDto;
 
 public class LoginResponse
 {

@@ -18,7 +18,7 @@ public class Comment {
     private Post post;
 
     @OneToOne
-    private User user;
+    private UserModel user;
 
     @Column(nullable = false)
     private Date time;
@@ -50,11 +50,11 @@ public class Comment {
         this.post = post;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
     }
 

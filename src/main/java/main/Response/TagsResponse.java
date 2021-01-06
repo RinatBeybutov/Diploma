@@ -1,6 +1,6 @@
 package main.Response;
 
-import main.Response.dto.TagDto;
+import main.dto.TagDto;
 
 import java.util.ArrayList;
 

@@ -1,20 +1,27 @@
 package main.Service;
 
-import main.Model.User;
+import java.security.Principal;
+import java.util.Date;
+import main.Model.UserModel;
 import main.Repository.CaptchaRepository;
 import main.Repository.UserRepository;
 import main.Request.RequestLogin;
 import main.Request.RequestRegister;
+import main.Request.RequestRestore;
 import main.Response.LoginResponse;
 import main.Response.RegisterWrongResponse;
-import main.Response.dto.ResultDto;
-import main.Response.dto.UserBigDto;
+import main.dto.ResultDto;
+import main.dto.UserBigDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 @Service
 public class UserService {
@@ -24,6 +31,9 @@ public class UserService {
 
     @Autowired
     private CaptchaRepository captchaRepository;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     public ResponseEntity<?> registerNewUser(RequestRegister requestRegister) {
 
@@ -65,30 +75,31 @@ public class UserService {
 
     public ResponseEntity<?> login(RequestLogin requestLogin) {
 
-        if(!userRepository.findAllByEmail(requestLogin.getE_mail()).isPresent())
-        {
+        Authentication auth = authenticationManager
+            .authenticate(new UsernamePasswordAuthenticationToken(requestLogin.getE_mail(),
+                requestLogin.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        User userDetails = (User) auth.getPrincipal();
+
+        if (!userRepository.findAllByEmail(requestLogin.getE_mail()).isPresent()) {
             return new ResponseEntity<>(new ResultDto(false), HttpStatus.OK);
         }
-        LoginResponse loginResponse = new LoginResponse();
-        User user = userRepository.findAllByEmail(requestLogin.getE_mail()).get();
-        loginResponse.setUser(convertUserToUserBigDTO(user));
-        loginResponse.setResult(true);
 
-        return new ResponseEntity<>(loginResponse, HttpStatus.OK);
+        return new ResponseEntity<>(getLoginResponse(requestLogin.getE_mail()), HttpStatus.OK);
     }
 
-    private User convertFromRequestUserToUser(RequestRegister requestRegister) {
-        User user = new User();
+    private UserModel convertFromRequestUserToUser(RequestRegister requestRegister) {
+        UserModel user = new UserModel();
         user.setRegTime(new Date());
         user.setEmail(requestRegister.getE_mail());
         user.setName(requestRegister.getName());
         user.setPassword(requestRegister.getPassword());
-        user.setIsModerator((byte)0);
+        user.setIsModerator((byte) 0);
         return user;
     }
 
-    private UserBigDto convertUserToUserBigDTO(User user)
-    {
+    private UserBigDto convertUserToUserBigDTO(UserModel user) {
         UserBigDto userBigDto = new UserBigDto();
         userBigDto.setId(user.getId());
         userBigDto.setName(user.getName());
@@ -98,5 +109,29 @@ public class UserService {
         userBigDto.setSettings(true);
         userBigDto.setPhoto(user.getPhoto() == null ? "" : user.getPhoto());
         return userBigDto;
+    }
+
+    public ResponseEntity<?> check(Principal principal) {
+        if(principal == null)
+        {
+            return ResponseEntity.ok(new ResultDto(false));
+        }
+        return ResponseEntity.ok(getLoginResponse(principal.getName()));
+    }
+
+    private LoginResponse getLoginResponse(String email)
+    {
+        UserModel user = userRepository.findAllByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException(email));
+
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setUser(convertUserToUserBigDTO(user));
+        loginResponse.setResult(true);
+        return loginResponse;
+    }
+
+    public ResponseEntity<?> restorePassword(RequestRestore requestRestore) {
+
+        return null;
     }
 }

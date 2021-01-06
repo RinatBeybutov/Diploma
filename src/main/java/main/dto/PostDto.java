@@ -1,22 +1,15 @@
-package main.Response;
+package main.dto;
 
-import main.Response.dto.CommentDto;
-import main.Response.dto.UserDtoTwoFields;
-
-import java.util.ArrayList;
-
-public class CurrentPostResponse {
+public class PostDto {
     private int id;
     private long timestamp;
-    private boolean active;
     private UserDtoTwoFields user;
     private String title;
-    private String text;
+    private String announce;
     private int likeCount;
     private int dislikeCount;
+    private int commentCount;
     private int viewCount;
-    private ArrayList<CommentDto> comment;
-    private ArrayList<String> tags;
 
     public int getId() {
         return id;
@@ -32,14 +25,6 @@ public class CurrentPostResponse {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public UserDtoTwoFields getUser() {
@@ -58,12 +43,12 @@ public class CurrentPostResponse {
         this.title = title;
     }
 
-    public String getText() {
-        return text;
+    public String getAnnounce() {
+        return announce;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setAnnounce(String announce) {
+        this.announce = announce;
     }
 
     public int getLikeCount() {
@@ -82,27 +67,19 @@ public class CurrentPostResponse {
         this.dislikeCount = dislikeCount;
     }
 
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
+
     public int getViewCount() {
         return viewCount;
     }
 
     public void setViewCount(int viewCount) {
         this.viewCount = viewCount;
-    }
-
-    public ArrayList<CommentDto> getComments() {
-        return comment;
-    }
-
-    public void setComments(ArrayList<CommentDto> comment) {
-        this.comment = comment;
-    }
-
-    public ArrayList<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(ArrayList<String> tags) {
-        this.tags = tags;
     }
 }

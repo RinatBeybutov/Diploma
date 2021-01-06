@@ -1,10 +1,10 @@
 package main.Controller;
 
+import java.security.Principal;
 import main.Request.RequestLogin;
 import main.Request.RequestRegister;
+import main.Request.RequestRestore;
 import main.Response.CaptchaResponse;
-import main.Response.LoginResponse;
-import main.Response.dto.ResultDto;
 import main.Service.CaptchaServise;
 import main.Service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -32,14 +32,10 @@ public class AuthController {
         return userService.registerNewUser(requestRegister);
     }
 
-    // GET /api/auth/captcha
-
     @GetMapping("/captcha")
     public CaptchaResponse getCaptcha() throws IOException {
         return captchaServise.getCaptcha();
     }
-
-    // POST /api/auth/login
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody RequestLogin requestLogin)
@@ -47,10 +43,23 @@ public class AuthController {
         return userService.login(requestLogin);
     }
 
+    @GetMapping("/check")
+    public ResponseEntity<?> check(Principal principal)
+    {
+        return userService.check(principal);
+    }
+
+    // POST /api/auth/restore
+
+    /*@PostMapping("/restore")
+    public ResponseEntity<?> restorePassword(@RequestBody RequestRestore requestRestore)
+    {
+        return userService.restorePassword(requestRestore);
+    }*/
 
     // GET /api/auth/check
 
-    // POST /api/auth/restore
+
 
     // POST /api/auth/password
 

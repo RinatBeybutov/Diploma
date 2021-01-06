@@ -1,4 +1,4 @@
-package main.Response.dto;
+package main.dto;
 
 public class CommentDto {
 

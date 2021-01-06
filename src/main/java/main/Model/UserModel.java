@@ -5,7 +5,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class UserModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +26,16 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(length = 255)
     private String code;
 
+    @Column(columnDefinition = "TEXT")
     private String photo;
+
+    public Role getRole()
+    {
+        return isModerator == 1 ? Role.MODERATOR : Role.USER;
+    }
 
     public int getId() {
         return id;

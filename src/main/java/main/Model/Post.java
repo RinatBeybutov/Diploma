@@ -1,7 +1,6 @@
 package main.Model;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,10 +20,10 @@ public class Post {
     private ModerationStatus moderationStatus;
 
     @OneToOne
-    private User moderator;
+    private UserModel moderator;
 
     @OneToOne(cascade = CascadeType.ALL)
-    private User user;
+    private UserModel user;
 
     @Column(nullable = false)
     private Date time;
@@ -38,22 +37,22 @@ public class Post {
     @Column(name = "view_count")
     private int countView;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    private Comment comment;
+   /* @ManyToOne(cascade = CascadeType.ALL)
+    private Comment comment;*/
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "tag2post",
     joinColumns = @JoinColumn(name = "post_id"),
     inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<Tag> Tags;
 
-    public Comment getComment() {
+    /*public Comment getComment() {
         return comment;
     }
 
     public void setComment(Comment comment) {
         this.comment = comment;
-    }
+    }*/
 
     public List<Tag> getTags() {
         return Tags;
@@ -87,19 +86,19 @@ public class Post {
         this.moderationStatus = moderationStatus;
     }
 
-    public User getModerator() {
+    public UserModel getModerator() {
         return moderator;
     }
 
-    public void setModerator(User moderator) {
+    public void setModerator(UserModel moderator) {
         this.moderator = moderator;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
     }
 

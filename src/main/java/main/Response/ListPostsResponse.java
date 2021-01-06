@@ -1,6 +1,6 @@
 package main.Response;
 
-import main.Response.dto.PostDto;
+import main.dto.PostDto;
 
 import java.util.List;
 

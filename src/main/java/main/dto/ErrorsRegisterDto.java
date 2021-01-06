@@ -1,12 +1,12 @@
-package main.Response.dto;
+package main.dto;
 
-public class ErrorsDto {
+public class ErrorsRegisterDto {
     private String email;
     private String name;
     private String password;
     private String captcha;
 
-    public ErrorsDto()
+    public ErrorsRegisterDto()
     {
         email = "";
         name = "";

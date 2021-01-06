@@ -3,7 +3,7 @@ package main.Service;
 import main.Model.Tag;
 import main.Repository.TagRepository;
 import main.Response.TagsResponse;
-import main.Response.dto.TagDto;
+import main.dto.TagDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +23,16 @@ public class TagService {
         AtomicReference<Float> maxWeight = new AtomicReference<>((float) 0);
         tagList.forEach(e ->{
             float temp = tagRepository.getWeightById(e.getId());
-            tagsResponse.getTags().add(new TagDto(e.getName(),
-                    temp));
-            if(maxWeight.get() < temp)
-            {
-                maxWeight.set(temp);
+            if(temp > 0) {
+                tagsResponse.getTags().add(new TagDto(e.getName(),
+                        temp));
+                if (maxWeight.get() < temp) {
+                    maxWeight.set(temp);
+                }
             }
         });
 
-        tagsResponse.getTags().forEach(e -> e.setWeight(e.getWeight() / maxWeight.get() ));
+        tagsResponse.getTags().stream().forEach(e -> e.setWeight(e.getWeight() / maxWeight.get()));
 
         return tagsResponse;
     }

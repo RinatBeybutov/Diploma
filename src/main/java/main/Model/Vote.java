@@ -7,12 +7,21 @@ import java.util.Date;
 @Table(name = "post_votes")
 public class Vote {
 
+    public Vote()
+    {}
+
+    public Vote( UserModel user, Post post, byte value) {
+        this.user = user;
+        this.post = post;
+        Value = value;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @OneToOne
-    private User user;
+    private UserModel user;
 
     @OneToOne
     private Post post;
@@ -31,11 +40,11 @@ public class Vote {
         this.id = id;
     }
 
-    public User getUser() {
+    public UserModel getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserModel user) {
         this.user = user;
     }
 

@@ -1,14 +1,14 @@
 package main.Controller;
 
+import java.security.Principal;
+import main.Request.RequestComment;
+import main.Request.RequestDecisionModeration;
 import main.Response.*;
-import main.Response.dto.TagDto;
 import main.Service.PostService;
 import main.Service.SettingsService;
 import main.Service.TagService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 //@RequestMapping("/api")
@@ -16,18 +16,15 @@ public class GeneralController {
 
     private final InitResponse initResponse;
     private final SettingsService settingsService;
-    private final NotAuthorizationResponse notAuthorizationResponse;
     private PostService postService;
     private TagService tagService;
 
     public GeneralController(InitResponse initResponse,
                              SettingsService settingsService,
-                             NotAuthorizationResponse notAuthorizationResponse,
                              PostService postService,
                              TagService tagService) {
         this.initResponse = initResponse;
         this.settingsService = settingsService;
-        this.notAuthorizationResponse = notAuthorizationResponse;
         this.postService = postService;
         this.tagService = tagService;
     }
@@ -44,12 +41,6 @@ public class GeneralController {
         return settingsService.getGlobalSettings();
     }
 
-    @GetMapping("/api/auth/check")
-    public NotAuthorizationResponse getCheck()
-    {
-        return notAuthorizationResponse;
-    }
-
     @GetMapping("/api/tag")
     public TagsResponse getTags()
     {
@@ -62,19 +53,43 @@ public class GeneralController {
        return postService.getCalendarResponse(year);
     }
 
-    // GET /api/statistics/all
-
     @GetMapping("api/statistics/all")
-    public StatisticsResponse getStatistics()
+    public ResponseEntity<StatisticsResponse>  getStatistics()
     {
         return postService.getGlobalStatistics();
     }
 
+    @GetMapping("api/statistics/my")
+    public ResponseEntity<StatisticsResponse> getMyStatistics(Principal principal)
+    {
+        return postService.getMyStatistics(principal);
+    }
+
+    @PutMapping("api/settings")
+    public void setSettings(@RequestBody SettingsReponse settingsReponse, Principal principal)
+    {
+        settingsService.setGlobalSettings(settingsReponse, principal);
+    }
+
+    @PostMapping("api/moderation")
+    public ResponseEntity<?> postModeration(Principal principal,
+        @RequestBody RequestDecisionModeration requestDecisionModeration)
+    {
+        return postService.moderateNewPosts(principal, requestDecisionModeration);
+    }
+
+    @PostMapping("api/comment")
+    public ResponseEntity<?> comment(@RequestBody RequestComment requestComment, Principal principal)
+    {
+        return postService.comment(requestComment, principal);
+    }
+
     // POST /api/profile/my
 
-    // PUT /api/settings/
-
-    // POST /api/profile/my
-
+    @PostMapping("api/profile/my")
+    public ResponseEntity<?> editProfile()
+    {
+        
+    }
 
 }

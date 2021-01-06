@@ -1,13 +1,14 @@
-package main.Response.dto;
+package main.dto;
 
-
-public class UserDtoTwoFields {
+public class UserDtoThreeFields {
     private int id;
     private String name;
+    private String photo;
 
-    public UserDtoTwoFields(int id, String name) {
+    public UserDtoThreeFields(int id, String name, String photo) {
         this.id = id;
         this.name = name;
+        this.photo = photo;
     }
 
     public int getId() {
@@ -24,5 +25,13 @@ public class UserDtoTwoFields {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 }

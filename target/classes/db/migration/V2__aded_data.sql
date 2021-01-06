@@ -14,11 +14,11 @@ INSERT INTO captcha_codes(id, time, code, secret_code) VALUES
 (5, '2000-01-01 00:00:08', '85K25', '85K25');
 
 INSERT INTO users(id, email, is_moderator, reg_time, name, password) VALUES
-(1,  'tarakan@mail.ru', 1, '2014-09-30', 'Bonita', 'qwerty'),
-(2, 'WaltraudK.Pearson96@example.com', 0, '2014-10-10',  'Ernie', 'qwerty1'),
-(3, 'dydqi814@example.com', 0, '2014-11-10',  'Hosea', 'qwerty1'),
-(4, 'ElliottSkaggs@example.com', 0, '2014-12-10', 'Maryanna', 'qwerty12' ),
-(5, 'HerschelKendall72@example.com', 0, '2015-01-10', 'Hulk', 'qwerty123');
+(1,  'tarakan@mail.ru', 1, '2014-09-30', 'Bonita', '$2a$12$UIpMJboQVwQwxzwseQK5uOMvYYWaUkW8L3XDYPD9z6iId3vT3mVxy'),
+(2, 'WaltraudK.Pearson96@example.com', 0, '2014-10-10',  'Ernie', '$2a$12$UIpMJboQVwQwxzwseQK5uOMvYYWaUkW8L3XDYPD9z6iId3vT3mVxy'),
+(3, 'dydqi814@example.com', 0, '2014-11-10',  'Hosea', '$2a$12$UIpMJboQVwQwxzwseQK5uOMvYYWaUkW8L3XDYPD9z6iId3vT3mVxy'),
+(4, 'ElliottSkaggs@example.com', 0, '2014-12-10', 'Maryanna', '$2a$12$UIpMJboQVwQwxzwseQK5uOMvYYWaUkW8L3XDYPD9z6iId3vT3mVxy' ),
+(5, 'HerschelKendall72@example.com', 0, '2015-01-10', 'Hulk', '$2a$12$UIpMJboQVwQwxzwseQK5uOMvYYWaUkW8L3XDYPD9z6iId3vT3mVxy');
 
 INSERT INTO global_settings(id, code, name, value) VALUES
 (1, 'MULTIUSER_MODE', 'Многопользовательский режим', 'YES'),

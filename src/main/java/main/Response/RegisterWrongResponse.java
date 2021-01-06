@@ -1,14 +1,14 @@
 package main.Response;
 
-import main.Response.dto.ErrorsDto;
+import main.dto.ErrorsRegisterDto;
 
 public class RegisterWrongResponse {
     private boolean result;
-    private ErrorsDto errors;
+    private ErrorsRegisterDto errors;
 
     public RegisterWrongResponse()
     {
-        errors = new ErrorsDto();
+        errors = new ErrorsRegisterDto();
     }
 
     public boolean isResult() {
@@ -19,11 +19,11 @@ public class RegisterWrongResponse {
         this.result = result;
     }
 
-    public ErrorsDto getErrors() {
+    public ErrorsRegisterDto getErrors() {
         return errors;
     }
 
-    public void setErrors(ErrorsDto errors) {
+    public void setErrors(ErrorsRegisterDto errors) {
         this.errors = errors;
     }
 }
