@@ -75,7 +75,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     // список постов по времени старые
 
-    @Query(value = "select * FROM posts order by time", nativeQuery = true)
+    @Query(value = "select * FROM posts where moderation_status = 'ACCEPTED' order by time ", nativeQuery = true)
     List<Post> findAllByTimeAsc();
 
     // список постов по количеству комментов
@@ -100,8 +100,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             , nativeQuery = true)
     List<Post> findAllByTag(String tag);
 
-    @Query(value = "select posts.id, view_count, is_active, moderation_status, " +
-            "text, time, title, comment_id, moderator_id, user_id " +
+    @Query(value = "select * " +
             "from posts join tag2post " +
             "on id = post_id " +
             "join tags on " +

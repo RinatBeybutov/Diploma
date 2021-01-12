@@ -202,7 +202,6 @@ public class PostService {
                 calendarResponse.getYears().add(e.getTime().getYear() + 1900);
             }
         );
-
         return calendarResponse;
     }
 

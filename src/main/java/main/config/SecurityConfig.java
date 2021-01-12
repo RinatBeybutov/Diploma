@@ -1,9 +1,14 @@
 package main.config;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 import main.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -13,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 @Configuration
 @EnableWebSecurity
@@ -41,9 +47,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .authenticated()
         .and()
         .formLogin().disable()
-        /*.logout().permitAll().logoutSuccessUrl("/")
+        /*.logout()
+        .logoutUrl("/api/auth/logout")
+        .logoutSuccessUrl("/")
+        .invalidateHttpSession(true)
         .and()*/
-        .httpBasic();
+        .httpBasic().disable();
+
   }
 
   @Bean
@@ -59,9 +69,41 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     return new BCryptPasswordEncoder(12);
   }
 
+  @Bean(name = "multipartResolver")
+  public CommonsMultipartResolver multipartResolver() {
+    CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
+    multipartResolver.setMaxUploadSize(10_000_000);
+    return multipartResolver;
+  }
+
   @Bean
   @Override
   protected AuthenticationManager authenticationManager() throws Exception {
     return super.authenticationManager();
   }
+
+  @Bean
+  public JavaMailSender getJavaMailSender()
+      throws KeyManagementException, NoSuchAlgorithmException {
+
+    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+    mailSender.setHost("smtp.gmail.com");
+    mailSender.setPort(587);//587
+    mailSender.setDefaultEncoding("utf-8");
+
+    mailSender.setUsername("rinatbeibutov@gmail.com");
+    mailSender.setPassword("tartirotr321");
+
+    Properties props = mailSender.getJavaMailProperties();
+    props.put("mail.transport.protocol", "smtp");
+    props.put("mail.smtp.auth", "true");
+    props.put("mail.smtp.starttls.enable", "true");
+    props.put("mail.debug", "true");
+    props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+    props.put("mail.smtp.allow8bitmime", "true");
+    props.put("mail.smtps.allow8bitmime", "true");
+
+    return mailSender;
+  }
+
 }

@@ -1,27 +1,38 @@
 package main.Service;
 
+import java.io.File;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Date;
 import main.Model.UserModel;
 import main.Repository.CaptchaRepository;
 import main.Repository.UserRepository;
 import main.Request.RequestLogin;
+import main.Request.RequestPassword;
 import main.Request.RequestRegister;
 import main.Request.RequestRestore;
+import main.Response.EditProfileWrongResponse;
+import main.Response.ImageWrongResponse;
 import main.Response.LoginResponse;
+import main.Response.PasswordWrongResponse;
 import main.Response.RegisterWrongResponse;
 import main.dto.ResultDto;
 import main.dto.UserBigDto;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class UserService {
@@ -34,6 +45,9 @@ public class UserService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     public ResponseEntity<?> registerNewUser(RequestRegister requestRegister) {
 
@@ -65,9 +79,8 @@ public class UserService {
 
         if(isCorrectCaptcha && isCorrectName && isLongPassword && isUniqueEmail)
         {
-            ResultDto resultDto = new ResultDto(true);
             userRepository.save(convertFromRequestUserToUser(requestRegister));
-            return new ResponseEntity<>(resultDto, HttpStatus.OK);
+            return new ResponseEntity<>(new ResultDto(true), HttpStatus.OK);
         }
 
         return new ResponseEntity<>(registerWrongResponse, HttpStatus.OK);
@@ -75,18 +88,18 @@ public class UserService {
 
     public ResponseEntity<?> login(RequestLogin requestLogin) {
 
+        if (!userRepository.findAllByEmail(requestLogin.getEmail()).isPresent()) {
+            return new ResponseEntity<>(new ResultDto(false), HttpStatus.OK);
+        }
+
         Authentication auth = authenticationManager
-            .authenticate(new UsernamePasswordAuthenticationToken(requestLogin.getE_mail(),
+            .authenticate(new UsernamePasswordAuthenticationToken(requestLogin.getEmail(),
                 requestLogin.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         User userDetails = (User) auth.getPrincipal();
 
-        if (!userRepository.findAllByEmail(requestLogin.getE_mail()).isPresent()) {
-            return new ResponseEntity<>(new ResultDto(false), HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(getLoginResponse(requestLogin.getE_mail()), HttpStatus.OK);
+        return new ResponseEntity<>(getLoginResponse(requestLogin.getEmail()), HttpStatus.OK);
     }
 
     private UserModel convertFromRequestUserToUser(RequestRegister requestRegister) {
@@ -94,7 +107,9 @@ public class UserService {
         user.setRegTime(new Date());
         user.setEmail(requestRegister.getE_mail());
         user.setName(requestRegister.getName());
-        user.setPassword(requestRegister.getPassword());
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        user.setPassword(encoder.encode(requestRegister.getPassword()));
         user.setIsModerator((byte) 0);
         return user;
     }
@@ -132,6 +147,201 @@ public class UserService {
 
     public ResponseEntity<?> restorePassword(RequestRestore requestRestore) {
 
-        return null;
+        if (!userRepository.findAllByEmail(requestRestore.getEmail()).isPresent()) {
+            return ResponseEntity.ok(new ResultDto(false));
+        }
+        UserModel user = userRepository.findAllByEmail(requestRestore.getEmail()).get();
+        SimpleMailMessage message = new SimpleMailMessage();
+        String hash = "" +
+            message.hashCode() +
+            Math.abs(Double.toString(Math.random() * 100000).hashCode()) +
+            Math.abs(Double.toString(Math.random() * 100000).hashCode());
+
+        user.setCode(hash);
+        userRepository.save(user);
+
+        message.setFrom("rinatbeibutov@gmail.com");
+        message.setSubject("Restore password");
+        message.setText("http://localhost:8080/login/change-password/" + hash);
+        message.setTo(requestRestore.getEmail());
+
+        mailSender.send(message);
+
+        return ResponseEntity.ok(new ResultDto(true));
+    }
+
+    public ResponseEntity<?> changePassword(RequestPassword requestPassword) {
+
+        boolean isCorrectCaptcha = true;
+        boolean isLongPassword = true;
+        boolean isActiveCode = true;
+
+        PasswordWrongResponse passwordWrongResponse = new PasswordWrongResponse();
+
+        if (requestPassword.getPassword().length() < 6) {
+            isLongPassword = false;
+            passwordWrongResponse.getErrors().setPassword("Пароль короче 6-ти символов");
+        }
+
+        if (!captchaRepository.findAllBySecret_code(requestPassword.getCaptchaSecret())
+            .getCode().equals(requestPassword.getCaptcha())) {
+            isCorrectCaptcha = false;
+            passwordWrongResponse.getErrors().setCaptcha("Код с картинки введён неверно");
+        }
+
+        if (!userRepository.findAllByCode(requestPassword.getCode()).isPresent()) {
+            isActiveCode = false;
+            passwordWrongResponse.getErrors().setCode("Ссылка для восстановления пароля устарела.\n"
+                + "\t\t\t\t<a href=\n"
+                + "\t\t\t\t\\\"/auth/restore\\\">Запросить ссылку снова</a>\",");
+        }
+
+        if (isActiveCode && isCorrectCaptcha && isLongPassword) {
+            UserModel user = userRepository.findAllByCode(requestPassword.getCode()).get();
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            user.setPassword(encoder.encode(requestPassword.getPassword()));
+            userRepository.save(user);
+            return new ResponseEntity<>(new ResultDto(true), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(passwordWrongResponse, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> editProfile(String requestBody, MultipartFile photo, String emailMP,
+        String nameMP, String passwordMP, String removePhotoMP, Principal principal)
+        throws  org.json.simple.parser.ParseException {
+
+        String email = emailMP;
+        String name = nameMP;
+        String password = passwordMP;
+        String removePhoto = removePhotoMP;
+
+        if (requestBody != null) {
+
+            JSONObject request = (JSONObject) new org.json.simple.parser.JSONParser().parse(requestBody);
+
+            if (request.containsKey("email")) {
+                email = request.get("email").toString();
+            }
+            if (request.containsKey("name")) {
+                name = request.get("name").toString();
+            }
+            if (request.containsKey("password")) {
+                password = request.get("password").toString();
+            }
+            if (request.containsKey("removePhoto")) {
+                removePhoto = request.get("removePhoto").toString();
+            }
+        }
+
+        UserModel user = userRepository.findAllByEmail(principal.getName())
+            .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+
+        EditProfileWrongResponse editProfileWrongResponse = new EditProfileWrongResponse();
+
+        boolean isLongPassword = true;
+        boolean isNewEmail = true;
+        boolean isSmallPhoto = true;
+        boolean isCorrectName = true;
+
+        if (!user.getEmail().equals(email)) {
+
+            if (!userRepository.findAllByEmail(email).isPresent()) {
+                user.setEmail(email);
+            } else {
+                editProfileWrongResponse.getErrors().setEmail("Этот e-mail уже зарегистрирован");
+                isNewEmail = false;
+            }
+        }
+
+        if (!user.getName().equals(name)) {
+            user.setName(name);
+        }
+
+        if (password != null) {
+            if (password.length() >= 6) {
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+                user.setPassword(encoder.encode(password));
+            } else {
+                editProfileWrongResponse.getErrors().setPassword("Пароль короче 6-ти символов");
+                isLongPassword = false;
+            }
+        }
+
+        if (removePhoto != null) {
+            if (removePhoto.equals("1")) {
+                if (user.getPhoto() != null) {
+                    File deleteFile = new File(user.getPhoto());
+                    File parDelFile = deleteFile.getParentFile();
+                    File parParDelFile = parDelFile.getParentFile();
+                    deleteFile.delete();
+                    parDelFile.delete();
+                    parParDelFile.delete();
+                    user.setPhoto(null);
+                }
+
+            } else if (removePhoto.equals("0")) {
+                if (photo.getSize() < 5 * 1024 * 1024) {
+                    this.savePhoto(photo, principal);
+                } else {
+                    editProfileWrongResponse.getErrors().setPhoto("Фото слишком большое, нужно не более 5 Мб");
+                }
+            }
+        }
+
+        if(isCorrectName && isLongPassword && isNewEmail && isSmallPhoto)
+        {
+            userRepository.save(user);
+            return ResponseEntity.ok(new ResultDto(true));
+        }
+        else {
+            return ResponseEntity.ok(editProfileWrongResponse);
+        }
+    }
+
+    public ResponseEntity<?> savePhoto(MultipartFile photo, Principal principal) {
+
+        ImageWrongResponse imageWrongResponse = new ImageWrongResponse();
+        if (photo.getSize() > 5 * 1024 * 1024) {
+            imageWrongResponse.getErrors().setImage("Размер файла превышает допустимый размер");
+            return ResponseEntity.ok(imageWrongResponse);
+        }
+
+        UserModel user = userRepository.findAllByEmail(principal.getName())
+            .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+
+        String firstDir = Character.toString((char) ((int) (Math.random() * 25) + 65)) +
+            Character.toString((char) ((int) (Math.random() * 25) + 65)) +
+            Character.toString((char) ((int) (Math.random() * 25) + 65));
+
+        String secondDir = Character.toString((char) ((int) (Math.random() * 25) + 65)) +
+            Character.toString((char) ((int) (Math.random() * 25) + 65)) +
+            Character.toString((char) ((int) (Math.random() * 25) + 65));
+
+        File filePhoto = new File("upload/" + firstDir +
+            "/" + secondDir + "/" + photo.getOriginalFilename());
+        try {
+            photo.transferTo(filePhoto);
+            if (user.getPhoto() != null) {
+                File deleteFile = new File(user.getPhoto());
+                File parDelFile = deleteFile.getParentFile();
+                File parParDelFile = parDelFile.getParentFile();
+                deleteFile.delete();
+                parDelFile.delete();
+                parParDelFile.delete();
+            }
+            user.setPhoto(filePhoto.getPath());
+            userRepository.save(user);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok("\\" + filePhoto.getPath());
+    }
+
+    public ResponseEntity<?> logout(Principal principal) {
+
+        SecurityContextHolder.getContext().setAuthentication(null);
+
+        return ResponseEntity.ok(new ResultDto(true));
     }
 }

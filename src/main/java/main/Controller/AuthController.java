@@ -2,6 +2,7 @@ package main.Controller;
 
 import java.security.Principal;
 import main.Request.RequestLogin;
+import main.Request.RequestPassword;
 import main.Request.RequestRegister;
 import main.Request.RequestRestore;
 import main.Response.CaptchaResponse;
@@ -23,8 +24,6 @@ public class AuthController {
         this.captchaServise = captchaServise;
         this.userService = userService;
     }
-
-    // POST /api/auth/register
 
     @PostMapping("/register")
     public ResponseEntity<?> registerNew(@RequestBody RequestRegister requestRegister)
@@ -49,23 +48,22 @@ public class AuthController {
         return userService.check(principal);
     }
 
-    // POST /api/auth/restore
-
-    /*@PostMapping("/restore")
+    @PostMapping("/restore")
     public ResponseEntity<?> restorePassword(@RequestBody RequestRestore requestRestore)
     {
         return userService.restorePassword(requestRestore);
-    }*/
+    }
 
-    // GET /api/auth/check
+    @PostMapping("/password")
+    public ResponseEntity<?> changePassword(@RequestBody RequestPassword requestPassword)
+    {
+        return userService.changePassword(requestPassword);
+    }
 
-
-
-    // POST /api/auth/password
-
-    // GET /api/auth/logout
-
-
-
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(Principal principal)
+    {
+        return userService.logout(principal);
+    }
 
 }

@@ -1,16 +1,19 @@
 package main.Request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class RequestLogin {
 
-    private String e_mail;
+    @JsonProperty("e_mail")
+    private String email;
     private String password;
 
-    public String getE_mail() {
-        return e_mail;
+    public String getEmail() {
+        return email;
     }
 
-    public void setE_mail(String e_mail) {
-        this.e_mail = e_mail;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
