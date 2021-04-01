@@ -244,7 +244,7 @@ public class UserService {
         boolean isSmallPhoto = true;
         boolean isCorrectName = true;
 
-        if (!user.getEmail().equals(email)) {
+        if (!user.getEmail().equals(email) && email != null) {
 
             if (!userRepository.findAllByEmail(email).isPresent()) {
                 user.setEmail(email);
@@ -254,7 +254,7 @@ public class UserService {
             }
         }
 
-        if (!user.getName().equals(name)) {
+        if (!user.getName().equals(name) && name != null) {
             user.setName(name);
         }
 
@@ -268,35 +268,31 @@ public class UserService {
             }
         }
 
-        if (removePhoto != null) {
-            if (removePhoto.equals("1")) {
-                if (user.getPhoto() != null) {
-                    File deleteFile = new File(user.getPhoto());
-                    File parDelFile = deleteFile.getParentFile();
-                    File parParDelFile = parDelFile.getParentFile();
-                    deleteFile.delete();
-                    parDelFile.delete();
-                    parParDelFile.delete();
-                    user.setPhoto(null);
-                }
+        if (removePhoto != null && removePhoto.equals("1") && user.getPhoto() != null) {
+            deletePhoto(user.getPhoto());
+            user.setPhoto(null);
 
-            } else if (removePhoto.equals("0")) {
-                if (photo.getSize() < 5 * 1024 * 1024) {
-                    this.savePhoto(photo, principal);
-                } else {
-                    editProfileWrongResponse.getErrors().setPhoto("Фото слишком большое, нужно не более 5 Мб");
-                }
+        } else if(photo != null) {
+            if (photo.getSize() < 5 * 1024 * 1024) {
+                this.savePhoto(photo, principal);
+            } else {
+                editProfileWrongResponse.getErrors()
+                    .setPhoto("Фото слишком большое, нужно не более 5 Мб");
             }
         }
 
-        if(isCorrectName && isLongPassword && isNewEmail && isSmallPhoto)
-        {
+        if (isCorrectName && isLongPassword && isNewEmail && isSmallPhoto) {
             userRepository.save(user);
             return ResponseEntity.ok(new ResultDto(true));
-        }
-        else {
+        } else {
             return ResponseEntity.ok(editProfileWrongResponse);
         }
+    }
+
+    private void deletePhoto(String pathPhoto) {
+
+        File deleteFile = new File(pathPhoto);
+        deleteFile.delete();
     }
 
     public ResponseEntity<?> savePhoto(MultipartFile photo, Principal principal) {
@@ -310,32 +306,35 @@ public class UserService {
         UserModel user = userRepository.findAllByEmail(principal.getName())
             .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
 
-        String firstDir = Character.toString((char) ((int) (Math.random() * 25) + 65)) +
+        /*String firstDir = Character.toString((char) ((int) (Math.random() * 25) + 65)) +
             Character.toString((char) ((int) (Math.random() * 25) + 65)) +
             Character.toString((char) ((int) (Math.random() * 25) + 65));
 
         String secondDir = Character.toString((char) ((int) (Math.random() * 25) + 65)) +
             Character.toString((char) ((int) (Math.random() * 25) + 65)) +
-            Character.toString((char) ((int) (Math.random() * 25) + 65));
+            Character.toString((char) ((int) (Math.random() * 25) + 65));*/
 
-        File filePhoto = new File("upload/" + firstDir +
-            "/" + secondDir + "/" + photo.getOriginalFilename());
+       /* File filePhoto = new File("upload/" + firstDir +
+            "/" + secondDir + "/" + photo.getOriginalFilename());*/
+
+        File filePhoto = new File("upload/" + photo.getOriginalFilename());
+
         try {
             photo.transferTo(filePhoto);
-            if (user.getPhoto() != null) {
+           /* if (user.getPhoto() != null) {
                 File deleteFile = new File(user.getPhoto());
-                File parDelFile = deleteFile.getParentFile();
-                File parParDelFile = parDelFile.getParentFile();
+                //File parDelFile = deleteFile.getParentFile();
+                //File parParDelFile = parDelFile.getParentFile();
                 deleteFile.delete();
-                parDelFile.delete();
-                parParDelFile.delete();
-            }
+                //parDelFile.delete();
+                //parParDelFile.delete();
+            }*/
             user.setPhoto(filePhoto.getPath());
             userRepository.save(user);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return ResponseEntity.ok("\\" + filePhoto.getPath());
+        return ResponseEntity.ok("\\/" + filePhoto.getPath());
     }
 
     public ResponseEntity<?> logout(Principal principal) {
