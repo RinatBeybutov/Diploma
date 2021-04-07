@@ -1,11 +1,15 @@
 package main.Response;
 
-import main.dto.ErrorsPostDto;
+import main.Dto.ErrorsPostDto;
 
 public class PostWrongResponse {
 
   private boolean result;
   private ErrorsPostDto errors;
+
+  public PostWrongResponse() {
+    errors = new ErrorsPostDto();
+  }
 
   public boolean isResult() {
     return result;

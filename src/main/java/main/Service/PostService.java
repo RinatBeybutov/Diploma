@@ -1,14 +1,13 @@
 package main.Service;
 
 import java.security.Principal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
+import main.Dto.IPostCount;
 import main.Model.Comment;
 import main.Model.ModerationStatus;
 import main.Model.Post;
@@ -30,12 +29,12 @@ import main.Response.PostWrongResponse;
 import main.Response.ResponseComment;
 import main.Response.SinglePostResponse;
 import main.Response.StatisticsResponse;
-import main.dto.CommentDto;
-import main.dto.ErrorsPostDto;
-import main.dto.PostDto;
-import main.dto.ResultDto;
-import main.dto.UserDtoThreeFields;
-import main.dto.UserDtoTwoFields;
+import main.Dto.CommentDto;
+import main.Dto.ErrorsPostDto;
+import main.Dto.PostDto;
+import main.Dto.ResultDto;
+import main.Dto.UserDtoThreeFields;
+import main.Dto.UserDtoTwoFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -166,7 +165,7 @@ public class PostService {
         return new ListPostsResponse(postRepository.countPost(), responseList);
     }
 
-    public ResponseEntity getSinglePost(int id) {
+    public ResponseEntity<SinglePostResponse> getSinglePost(int id) {
         Optional<Post> optionalPost = postRepository.findById(id);
 
         if (!optionalPost.isPresent()) {
@@ -188,20 +187,13 @@ public class PostService {
     public CalendarResponse getCalendarResponse(int yearId) {
 
         CalendarResponse calendarResponse = new CalendarResponse();
-        ArrayList<Post> listPosts = (ArrayList<Post>) postRepository.findAllByTimeAsc();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        listPosts.forEach(e ->
-            {
-                String currentDate = dateFormat.format(e.getTime());
-                if (!calendarResponse.getPosts().containsKey(currentDate)) {
-                    calendarResponse.getPosts().put(currentDate, 1);
-                } else {
-                    calendarResponse.getPosts().put(currentDate,
-                        calendarResponse.getPosts().get(currentDate) + 1);
-                }
-                calendarResponse.getYears().add(e.getTime().getYear() + 1900);
-            }
-        );
+        ArrayList<IPostCount> listCountPostDto = (ArrayList<IPostCount>) postRepository.countPostByDate();
+        for(int i=0; i<listCountPostDto.size(); i++) {
+            calendarResponse.getPosts().put(listCountPostDto.get(i).getDatePost(),
+                listCountPostDto.get(i).getCountPost());
+            calendarResponse.getYears().add(
+                Integer.valueOf(listCountPostDto.get(i).getDatePost().substring(0,4)));
+        }
         return calendarResponse;
     }
 
@@ -310,7 +302,7 @@ public class PostService {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    public ResponseEntity<?> getMyPosts(int offset, int limit, String status,
+    public ResponseEntity<ListPostsResponse> getMyPosts(int offset, int limit, String status,
         Principal principal) {
 
         UserModel user = userRepository.findAllByEmail(principal.getName())

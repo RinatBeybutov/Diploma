@@ -1,7 +1,7 @@
 package main.Response;
 
-import main.dto.CommentDto;
-import main.dto.UserDtoTwoFields;
+import main.Dto.CommentDto;
+import main.Dto.UserDtoTwoFields;
 
 import java.util.ArrayList;
 

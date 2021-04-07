@@ -1,6 +1,6 @@
 package main.Response;
 
-import main.dto.ErrorsImageDto;
+import main.Dto.ErrorsImageDto;
 
 public class ImageWrongResponse {
 

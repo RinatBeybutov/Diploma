@@ -1,5 +1,5 @@
-/*
-package main.config;
+
+package main.Config;
 
 
 import org.springframework.context.annotation.Configuration;
@@ -15,9 +15,9 @@ public class Config implements WebMvcConfigurer {
 @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
     registry
-        .addResourceHandler("/upload/**")
-        .addResourceLocations("upload/", "classpath:/src/main/java/resources/static/");
+        .addResourceHandler("/upload/**", "/**")
+        .addResourceLocations("file:upload/", "classpath:static/");  // /src/main/java/resources
   }
 
-} */
+}
 

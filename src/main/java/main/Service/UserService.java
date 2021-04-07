@@ -16,8 +16,8 @@ import main.Response.ImageWrongResponse;
 import main.Response.LoginResponse;
 import main.Response.PasswordWrongResponse;
 import main.Response.RegisterWrongResponse;
-import main.dto.ResultDto;
-import main.dto.UserBigDto;
+import main.Dto.ResultDto;
+import main.Dto.UserBigDto;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -291,7 +291,7 @@ public class UserService {
 
     private void deletePhoto(String pathPhoto) {
 
-        File deleteFile = new File(pathPhoto);
+        File deleteFile = new File(pathPhoto.substring(1));
         deleteFile.delete();
     }
 
@@ -329,7 +329,7 @@ public class UserService {
                 //parDelFile.delete();
                 //parParDelFile.delete();
             }*/
-            user.setPhoto(filePhoto.getPath());
+            user.setPhoto("/" + filePhoto.getPath());
             userRepository.save(user);
         } catch (IOException e) {
             e.printStackTrace();

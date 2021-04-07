@@ -1,4 +1,4 @@
-package main.dto;
+package main.Dto;
 
 public class UserBigDto {
     private int id;

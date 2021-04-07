@@ -67,7 +67,7 @@ public class PostController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<?> getMyPosts(@RequestParam(defaultValue = "0") int offset,
+    public ResponseEntity<ListPostsResponse> getMyPosts(@RequestParam(defaultValue = "0") int offset,
         @RequestParam(defaultValue = "10") int limit,
         @RequestParam(defaultValue = "inactive") String status,
         Principal principal) {

@@ -1,10 +1,14 @@
 package main.Response;
 
-import main.dto.ErrorsPasswordDto;
+import main.Dto.ErrorsPasswordDto;
 
 public class PasswordWrongResponse {
   private boolean result;
   private ErrorsPasswordDto errors;
+
+  public PasswordWrongResponse() {
+    errors = new ErrorsPasswordDto();
+  }
 
   public boolean isResult() {
     return result;

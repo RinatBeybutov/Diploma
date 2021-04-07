@@ -1,6 +1,6 @@
 package main.Response;
 
-import main.dto.ErrorsRegisterDto;
+import main.Dto.ErrorsRegisterDto;
 
 public class RegisterWrongResponse {
     private boolean result;

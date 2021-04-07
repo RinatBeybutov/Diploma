@@ -1,6 +1,7 @@
 package main.Repository;
 
 import java.util.List;
+import main.Dto.IPostCount;
 import main.Model.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -64,7 +65,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query(value = "select count(*) from posts", nativeQuery = true)
     int countPost();
 
-
+    @Query(value = "select date(time) as datePost, "
+        + "count(date(time)) as countPost from posts  group by date(time) order by time desc;",
+    nativeQuery = true)
+    List<IPostCount> countPostByDate();
 
 
 

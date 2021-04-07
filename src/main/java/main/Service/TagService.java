@@ -3,7 +3,7 @@ package main.Service;
 import main.Model.Tag;
 import main.Repository.TagRepository;
 import main.Response.TagsResponse;
-import main.dto.TagDto;
+import main.Dto.TagDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package main.dto;
+package main.Dto;
 
 public class ResultDto {
     private boolean result;

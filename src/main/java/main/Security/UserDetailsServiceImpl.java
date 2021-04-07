@@ -1,4 +1,4 @@
-package main.security;
+package main.Security;
 
 import main.Model.UserModel;
 import main.Repository.UserRepository;

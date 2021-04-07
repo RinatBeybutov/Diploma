@@ -1,9 +1,9 @@
-package main.config;
+package main.Config;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
-import main.security.UserDetailsServiceImpl;
+import main.Security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

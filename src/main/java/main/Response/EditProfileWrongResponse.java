@@ -1,6 +1,6 @@
 package main.Response;
 
-import main.dto.ErrorsEditProfileDto;
+import main.Dto.ErrorsEditProfileDto;
 
 public class EditProfileWrongResponse {
 
