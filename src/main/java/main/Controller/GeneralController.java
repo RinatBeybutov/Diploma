@@ -3,7 +3,6 @@ package main.Controller;
 import java.security.Principal;
 import main.Request.RequestComment;
 import main.Request.RequestDecisionModeration;
-import main.Request.RequestEditProfile;
 import main.Response.CalendarResponse;
 import main.Response.InitResponse;
 import main.Response.SettingsReponse;
@@ -13,7 +12,6 @@ import main.Service.PostService;
 import main.Service.SettingsService;
 import main.Service.TagService;
 import main.Service.UserService;
-import org.apache.tomcat.util.json.ParseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -102,9 +100,9 @@ public class GeneralController {
     }
 
     @PostMapping("/image")
-    public ResponseEntity<?> uploadImage(@RequestParam MultipartFile photo, Principal principal)
+    public ResponseEntity<?> uploadImage(@RequestParam MultipartFile image)
     {
-        return userService.savePhoto(photo, principal);
+        return userService.saveImage(image);
     }
 
     @PostMapping(value = "/profile/my", consumes = {"multipart/form-data", "application/json"})

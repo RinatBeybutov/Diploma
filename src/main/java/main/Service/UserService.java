@@ -274,7 +274,7 @@ public class UserService {
 
         } else if(photo != null) {
             if (photo.getSize() < 5 * 1024 * 1024) {
-                this.savePhoto(photo, principal);
+                this.setPhotoToUser(photo, principal);
             } else {
                 editProfileWrongResponse.getErrors()
                     .setPhoto("Фото слишком большое, нужно не более 5 Мб");
@@ -295,46 +295,51 @@ public class UserService {
         deleteFile.delete();
     }
 
-    public ResponseEntity<?> savePhoto(MultipartFile photo, Principal principal) {
-
+    public ResponseEntity<?> saveImage(MultipartFile image) {
         ImageWrongResponse imageWrongResponse = new ImageWrongResponse();
-        if (photo.getSize() > 5 * 1024 * 1024) {
+        if (image.getSize() > 5 * 1024 * 1024) {
             imageWrongResponse.getErrors().setImage("Размер файла превышает допустимый размер");
             return ResponseEntity.ok(imageWrongResponse);
         }
 
+        createUploadFolder();
+
+        File fileImage = new File("${upload.folder}" + image.getOriginalFilename());
+
+        try {
+            image.transferTo(fileImage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.ok("\\/" + fileImage.getPath());
+    }
+
+    public ResponseEntity<?> setPhotoToUser(MultipartFile photo, Principal principal) {
+
         UserModel user = userRepository.findAllByEmail(principal.getName())
             .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
 
-        /*String firstDir = Character.toString((char) ((int) (Math.random() * 25) + 65)) +
-            Character.toString((char) ((int) (Math.random() * 25) + 65)) +
-            Character.toString((char) ((int) (Math.random() * 25) + 65));
+        createUploadFolder();
 
-        String secondDir = Character.toString((char) ((int) (Math.random() * 25) + 65)) +
-            Character.toString((char) ((int) (Math.random() * 25) + 65)) +
-            Character.toString((char) ((int) (Math.random() * 25) + 65));*/
-
-       /* File filePhoto = new File("upload/" + firstDir +
-            "/" + secondDir + "/" + photo.getOriginalFilename());*/
-
-        File filePhoto = new File("upload/" + photo.getOriginalFilename());
+        File filePhoto = new File("${upload.folder}" + photo.getOriginalFilename());
 
         try {
             photo.transferTo(filePhoto);
-           /* if (user.getPhoto() != null) {
-                File deleteFile = new File(user.getPhoto());
-                //File parDelFile = deleteFile.getParentFile();
-                //File parParDelFile = parDelFile.getParentFile();
-                deleteFile.delete();
-                //parDelFile.delete();
-                //parParDelFile.delete();
-            }*/
             user.setPhoto("/" + filePhoto.getPath());
             userRepository.save(user);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return ResponseEntity.ok("\\/" + filePhoto.getPath());
+    }
+
+    private void createUploadFolder() {
+        File folder = new File("/${upload.folder}");
+
+        if(!folder.exists()) {
+            folder.mkdir();
+        }
     }
 
     public ResponseEntity<?> logout(Principal principal) {
