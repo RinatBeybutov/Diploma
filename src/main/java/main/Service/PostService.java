@@ -176,7 +176,8 @@ public class PostService {
             convertFromPostToCurrentPostResponse(optionalPost.get(),
                 postRepository.countLikesOnPost(optionalPost.get().getId()),
                 postRepository.countDislikesOnPost((optionalPost.get().getId())),
-                commentRepository.findAllByPostId(optionalPost.get().getId()));
+                commentRepository.findAllByPostId(optionalPost.get().getId()),
+                optionalPost.get().getTags());
 
         optionalPost.get().setCountView(optionalPost.get().getCountView() + 1);
         postRepository.save(optionalPost.get());
@@ -405,7 +406,8 @@ public class PostService {
     private SinglePostResponse convertFromPostToCurrentPostResponse(Post post,
         int countLikes,
         int countDislike,
-        List<Comment> listComments) {
+        List<Comment> listComments,
+        List<Tag> listTags) {
 
         SinglePostResponse singlePostResponse = new SinglePostResponse();
         singlePostResponse.setId(post.getId());
@@ -423,7 +425,9 @@ public class PostService {
         listComments.forEach(e -> comments.add(this.convertFromCommentToCommentDto(e)));
         singlePostResponse.setComments(comments);
 
-        singlePostResponse.setTags(new ArrayList<String>());
+        ArrayList<String> tags = new ArrayList<>();
+        listTags.forEach(e -> tags.add(e.getName()));
+        singlePostResponse.setTags(tags);
 
         return singlePostResponse;
     }

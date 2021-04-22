@@ -7,6 +7,10 @@ public class RequestRegister {
     private String captcha;
     private String captcha_secret;
 
+    public RequestRegister() {
+
+    }
+
     public RequestRegister(String e_mail, String password, String name, String captcha, String captcha_secret) {
         this.e_mail = e_mail;
         this.password = password;

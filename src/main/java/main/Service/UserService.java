@@ -20,6 +20,7 @@ import main.Dto.ResultDto;
 import main.Dto.UserBigDto;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -48,6 +49,9 @@ public class UserService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Value("${upload.folder}")
+    private String pathUploadFolder;
 
     public ResponseEntity<?> registerNewUser(RequestRegister requestRegister) {
 
@@ -304,7 +308,7 @@ public class UserService {
 
         createUploadFolder();
 
-        File fileImage = new File("${upload.folder}" + image.getOriginalFilename());
+        File fileImage = new File(pathUploadFolder + image.getOriginalFilename());
 
         try {
             image.transferTo(fileImage);
@@ -322,7 +326,7 @@ public class UserService {
 
         createUploadFolder();
 
-        File filePhoto = new File("${upload.folder}" + photo.getOriginalFilename());
+        File filePhoto = new File(pathUploadFolder + photo.getOriginalFilename());
 
         try {
             photo.transferTo(filePhoto);
@@ -335,7 +339,7 @@ public class UserService {
     }
 
     private void createUploadFolder() {
-        File folder = new File("/${upload.folder}");
+        File folder = new File("/" + pathUploadFolder);
 
         if(!folder.exists()) {
             folder.mkdir();
