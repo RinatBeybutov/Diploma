@@ -54,6 +54,10 @@ public class Post {
         this.comment = comment;
     }*/
 
+    public void increaseViewByOne() {
+        countView++;
+    }
+
     public List<Tag> getTags() {
         return Tags;
     }

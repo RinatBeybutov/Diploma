@@ -92,7 +92,11 @@ public class UserService {
 
     public ResponseEntity<?> login(RequestLogin requestLogin) {
 
-        if (!userRepository.findAllByEmail(requestLogin.getEmail()).isPresent()) {
+        UserModel user = userRepository.findAllByEmail(requestLogin.getEmail()).orElse(null);
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (user == null || encoder.matches(user.getPassword(), encoder.encode(requestLogin.getPassword()))) {
             return new ResponseEntity<>(new ResultDto(false), HttpStatus.OK);
         }
 
@@ -100,8 +104,6 @@ public class UserService {
             .authenticate(new UsernamePasswordAuthenticationToken(requestLogin.getEmail(),
                 requestLogin.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(auth);
-
-        User userDetails = (User) auth.getPrincipal();
 
         return new ResponseEntity<>(getLoginResponse(requestLogin.getEmail()), HttpStatus.OK);
     }
@@ -316,7 +318,7 @@ public class UserService {
             e.printStackTrace();
         }
 
-        return ResponseEntity.ok("\\/" + fileImage.getPath());
+        return ResponseEntity.ok("/" + fileImage.getPath());
     }
 
     public ResponseEntity<?> setPhotoToUser(MultipartFile photo, Principal principal) {
@@ -339,7 +341,7 @@ public class UserService {
     }
 
     private void createUploadFolder() {
-        File folder = new File("/" + pathUploadFolder);
+        File folder = new File("/" + pathUploadFolder); //    /  upload/
 
         if(!folder.exists()) {
             folder.mkdir();

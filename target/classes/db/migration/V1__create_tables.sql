@@ -1,6 +1,3 @@
-
-
-
 create table captcha_codes (
     id integer not null AUTO_INCREMENT,
     code varchar(255) not null,
@@ -40,7 +37,7 @@ create table posts (
     view_count integer,
     is_active tinyint not null,
     moderation_status varchar(255) not null,
-    text varchar(255) not null,
+    text text not null,
     time datetime not null,
     title varchar(255) not null,
 
